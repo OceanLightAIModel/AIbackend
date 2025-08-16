@@ -66,8 +66,7 @@ def login(data: Login, db: Session = Depends(get_db)):
         now = datetime.utcnow()
         db.query(RefreshToken).filter(
             RefreshToken.user_id == user.user_id,
-            RefreshToken.revoked == False,
-            RefreshToken.expires_at > now
+            RefreshToken.revoked == False
         ).update({RefreshToken.revoked: True}, synchronize_session=False)
 
         access_token = auth.create_access_token(user.user_id)
@@ -80,4 +79,34 @@ def login(data: Login, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=500, detail=f"로그인 처리 중 오류 발생: {e}")
 
-# (이하 refresh, logout 함수는 기존과 동일)
+# (이하 refresh, logout 함수는 기존과 동일하게 유지)
+@auth_router.post("/refresh", response_model=TokenResponse)
+def refresh(refresh_token: str = Header(None, alias="X-Refresh-Token"), db: Session = Depends(get_db)):
+    if not refresh_token:
+        raise HTTPException(status_code=400, detail="리프레시 토큰이 누락되었습니다.")
+    auth = AuthHandler()
+    try:
+        payload = auth.verify_refresh_token(db, refresh_token)
+        user_id = int(payload["sub"])
+        new_access, new_refresh = auth.rotate_refresh_token(db, refresh_token, user_id)
+        db.commit()
+        return TokenResponse(access_token=new_access, refresh_token=new_refresh, token_type="bearer")
+    except:
+        db.rollback()
+        raise
+
+@auth_router.post("/logout")
+def logout(refresh_token: str = Header(None, alias="X-Refresh-Token"), user: Users = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not refresh_token:
+        raise HTTPException(400, "리프레시 토큰 누락")
+    token_hash = _token_hash(refresh_token)
+    token = db.query(RefreshToken).filter(
+        RefreshToken.user_id == user.user_id,
+        RefreshToken.token_hash == token_hash,
+        RefreshToken.revoked == False,
+    ).first()
+    if not token:
+        raise HTTPException(404, "리프레시 토큰을 찾을 수 없습니다")
+    token.revoked = True
+    db.commit()
+    return {"message": "현재 기기에서 로그아웃되었습니다"}
