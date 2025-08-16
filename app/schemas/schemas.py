@@ -53,10 +53,9 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 class Login(BaseModel):
-    identifier: str  
+    email: EmailStr
     password: str
-    
-    @validator("identifier")
+
     def validate_identifier(cls, v):
         email_regex = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
         if re.fullmatch(email_regex, v):
