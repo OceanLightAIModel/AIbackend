@@ -1,5 +1,4 @@
-version: "3.9"
-
+version: '3.8'
 
 services:
   db:
@@ -12,27 +11,36 @@ services:
       MYSQL_USER: ${OCEAN_USER}
       MYSQL_PASSWORD: ${OCEAN_DB_USER_PASSWORD}
     ports:
-      - "3306:3306"
+      - "${OCEAN_DB_PORT}:3306"
     volumes:
       - db_data:/var/lib/mysql
-
-  api:
-    build: .
+      command: ["/bin/sh", "-c", "sleep 10 && uvicorn main:app --host 0.0.0.0 --port 8000"]
+  api-server:
+    # --- context 경로를 . 으로 수정합니다 ---
+    build:
+      context: .
+    # ------------------------------------
     container_name: ocean-api-server
-    depends_on:
-      - db
-    env_file:
-      - .env
-    environment:
-      OCEAN_DB_PORT: ${OCEAN_DB_PORT}
-      OCEAN_DB: ${OCEAN_DB}
-      OCEAN_DB_HOST: ${OCEAN_DB_HOST}
-      OCEAN_USER: ${OCEAN_USER}
-      OCEAN_DB_USER_PASSWORD: ${OCEAN_DB_USER_PASSWORD}
+    restart: always
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
+    environment:
+      - OCEAN_ROOT_PASSWORD=${OCEAN_ROOT_PASSWORD}
+      - OCEAN_DB=${OCEAN_DB}
+      - OCEAN_USER=${OCEAN_USER}
+      - OCEAN_DB_USER_PASSWORD=${OCEAN_DB_USER_PASSWORD}
+      - OCEAN_DB_PORT=${OCEAN_DB_PORT}
+      - OCEAN_DB_HOST=${OCEAN_DB_HOST}
+      - TOKEN_SECRET_KEY=${TOKEN_SECRET_KEY}
+      - TOKEN_ALGORITHM=${TOKEN_ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS}
+      - TOKEN_PEPPER=${TOKEN_PEPPER}
+    depends_on:
+      db:
+        condition: service_started
 
 volumes:
   db_data:
