@@ -38,16 +38,16 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # email이 form_data.username에 매핑됩니다.
     user = db.query(User).filter(User.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="이메일 또는 비밀번호가 잘못되었습니다.",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+       )
     # 토큰 생성
-    access_token = auth_handler.create_access_token(user.id)
-    refresh_token = auth_handler.create_refresh_token(user.id)
+    access_token = auth_handler.create_access_token(user.user_id)
+    refresh_token = auth_handler.create_refresh_token(user.user_id)
     # 새 리프레시 토큰을 저장
-    db_token = auth_handler.save_token(db, user.id, refresh_token)
+    db_token = auth_handler.save_token(db, user.user_id, refresh_token)
     db.commit()
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
