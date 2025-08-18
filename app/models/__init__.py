@@ -1,7 +1,13 @@
-from .models import User
-from .refresh_token import RefreshToken
+from .models import Users, RefreshToken, Thread, Message, Image
 
-# 과거 코드에서 models.Users를 사용한 경우를 위한 별칭
-Users = User
+# 과거 코드에서 models.User를 사용해도 작동하도록 별칭 추가
+User = Users
 
-__all__ = ["User", "Users", "RefreshToken"]
+__all__ = [
+    "Users",
+    "User",
+    "RefreshToken",
+    "Thread",
+    "Message",
+    "Image",
+]

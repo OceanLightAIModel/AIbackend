@@ -13,15 +13,13 @@ class UserCreate(BaseModel):
 UserRegister = UserCreate
 
 class UserResponse(BaseModel):
-    """사용자 응답 스키마."""
-    id: int
+    user_id: int
     username: str
     email: EmailStr
+    phone_number: str | None = None
     created_at: datetime.datetime
-
     class Config:
-        # orm_mode 대신 from_attributes 사용
-        from_attributes = True
+        from_attributes = True  # Pydantic이 ORM 모델을 받아들일 수 있도록 설정
 
 # --- Token ---
 class Token(BaseModel):

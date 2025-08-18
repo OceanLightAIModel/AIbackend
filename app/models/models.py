@@ -1,27 +1,76 @@
-from sqlalchemy import Column, Integer, String, DateTime
+# app/models/models.py
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String, DateTime, ForeignKey, Index, func, Enum, text, Boolean, UniqueConstraint
+from typing import List
 import datetime
-from sqlalchemy.orm import relationship
-from database.base import Base
 
+from database.base import Base  # 단일 Base 사용
 
-class User(Base):
+class Users(Base):
     __tablename__ = "users"
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(String(100), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
+    updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, index=True)
-    email = Column(String(100), unique=True, index=True)
-    hashed_password = Column(String(100))
-    phone_number = Column(String(20), nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    refresh_tokens: Mapped[List["RefreshToken"]] = relationship(back_populates="users", cascade="all, delete-orphan")
+    threads: Mapped[List["Thread"]] = relationship(back_populates="users", cascade="all, delete-orphan")
 
-    # RefreshToken 모델과의 관계: 한 사용자가 여러 리프레시 토큰을 가질 수 있음
-    refresh_tokens = relationship(
-        "RefreshToken",
-        back_populates="user",
-        cascade="all, delete-orphan",
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+    __table_args__ = (
+        Index("idx_rt_user", "user_id"),
+        Index("idx_rt_revoked_expires", "revoked", "expires_at"),
+        Index("idx_refresh_token_id", "user_id"),
+        UniqueConstraint("token_hash", name="uq_refresh_tokens_token_hash"),
     )
 
-    @property
-    def user_id(self) -> int:
-        return self.id
+    refresh_token_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.user_id"), nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    expires_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False)
+    last_used_at: Mapped[datetime.datetime | None] = mapped_column(DateTime, nullable=True)
+    revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("0"))
+    replaced_by: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
+    users: Mapped["Users"] = relationship(back_populates="refresh_tokens")
+
+class Thread(Base):
+    __tablename__ = "threads"
+    __table_args__ = (
+        Index("thread_user_id", "user_id"),
+    )
+    thread_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    thread_title: Mapped[str] = mapped_column(String(100), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.user_id"), nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
+
+    users: Mapped["Users"] = relationship(back_populates="threads")
+    messages: Mapped[List["Message"]] = relationship(back_populates='thread', cascade="all, delete, delete-orphan")
+
+class Message(Base):
+    __tablename__ = "messages"
+    __table_args__ = (
+        Index("message_thread_id", "thread_id"),
+    )
+    message_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    thread_id: Mapped[int] = mapped_column(Integer, ForeignKey("threads.thread_id"))
+    sender_type: Mapped[str] = mapped_column(Enum("user", "assistant"), nullable=False)
+    content: Mapped[str] = mapped_column(String(500), nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
+
+    thread: Mapped["Thread"] = relationship(back_populates="messages")
+    images: Mapped[list["Image"]] = relationship(back_populates="message", cascade="all, delete-orphan")
+
+class Image(Base):
+    __tablename__ = "images"
+    image_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    message_id: Mapped[int] = mapped_column(Integer, ForeignKey("messages.message_id"), nullable=False)
+    image_url: Mapped[str] = mapped_column(String(255), nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
+
+    message: Mapped["Message"] = relationship(back_populates="images")
