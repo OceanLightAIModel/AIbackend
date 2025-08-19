@@ -1,9 +1,8 @@
-from .auth import auth_router
-<<<<<<< HEAD
-from .token import router as token_router
+# app/route/__init__.py
 
-__all__ = ["auth_router", "token_router"]
-=======
+from .auth import auth_router
+from .token import router as token_router
 from .thread import threads_router
 from .message import router as message_router
->>>>>>> d21e0d7 (update)
+
+__all__ = ["auth_router", "token_router", "threads_router", "message_router"]

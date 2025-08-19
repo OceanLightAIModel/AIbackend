@@ -1,3 +1,5 @@
+# app/schemas/__init__.py
+
 from .schemas import (
     UserCreate,
     UserRegister,
@@ -6,7 +8,13 @@ from .schemas import (
     TokenResponse,
     TokenData,
     Login,
-<<<<<<< HEAD
+    ThreadCreate,
+    ThreadUpdate,
+    ThreadResponse,
+    ThreadDetail,
+    MessageResponse,
+    MessageCreate,
+    MessageOut,
 )
 
 __all__ = [
@@ -17,14 +25,11 @@ __all__ = [
     "TokenResponse",
     "TokenData",
     "Login",
+    "ThreadCreate",
+    "ThreadUpdate",
+    "ThreadResponse",
+    "ThreadDetail",
+    "MessageResponse",
+    "MessageCreate",
+    "MessageOut",
 ]
-=======
-    ThreadCreate,
-    ThreadUpdate,
-    ThreadResponse,
-    ThreadDetail,
-    MessageResponse,
-    MessageCreate,
-    MessageOut
-)
->>>>>>> d21e0d7 (update)
