@@ -12,11 +12,18 @@ class Users(Base):
     username: Mapped[str] = mapped_column(String(100), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    # phone_number 컬럼 제거
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
-    updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
-    refresh_tokens: Mapped[List["RefreshToken"]] = relationship(back_populates="users", cascade="all, delete-orphan")
-    threads: Mapped[List["Thread"]] = relationship(back_populates="users", cascade="all, delete-orphan")
+    refresh_tokens: Mapped[List["RefreshToken"]] = relationship(
+        back_populates="users", cascade="all, delete-orphan"
+    )
+    threads: Mapped[List["Thread"]] = relationship(
+        back_populates="users", cascade="all, delete-orphan"
+    )
 
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
@@ -27,10 +34,14 @@ class RefreshToken(Base):
         UniqueConstraint("token_hash", name="uq_refresh_tokens_token_hash"),
     )
 
-    refresh_token_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    refresh_token_id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
     token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.user_id"), nullable=False)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, server_default=func.now(), nullable=False
+    )
     expires_at: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=False)
     last_used_at: Mapped[datetime.datetime | None] = mapped_column(DateTime, nullable=True)
     revoked: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("0"))
@@ -40,22 +51,22 @@ class RefreshToken(Base):
 
 class Thread(Base):
     __tablename__ = "threads"
-    __table_args__ = (
-        Index("thread_user_id", "user_id"),
-    )
+    __table_args__ = (Index("thread_user_id", "user_id"),)
+
     thread_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     thread_title: Mapped[str] = mapped_column(String(100), nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.user_id"), nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
 
     users: Mapped["Users"] = relationship(back_populates="threads")
-    messages: Mapped[List["Message"]] = relationship(back_populates='thread', cascade="all, delete, delete-orphan")
+    messages: Mapped[List["Message"]] = relationship(
+        back_populates="thread", cascade="all, delete, delete-orphan"
+    )
 
 class Message(Base):
     __tablename__ = "messages"
-    __table_args__ = (
-        Index("message_thread_id", "thread_id"),
-    )
+    __table_args__ = (Index("message_thread_id", "thread_id"),)
+
     message_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     thread_id: Mapped[int] = mapped_column(Integer, ForeignKey("threads.thread_id"))
     sender_type: Mapped[str] = mapped_column(Enum("user", "assistant"), nullable=False)
@@ -63,12 +74,17 @@ class Message(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
 
     thread: Mapped["Thread"] = relationship(back_populates="messages")
-    images: Mapped[list["Image"]] = relationship(back_populates="message", cascade="all, delete-orphan")
+    images: Mapped[list["Image"]] = relationship(
+        back_populates="message", cascade="all, delete-orphan"
+    )
 
 class Image(Base):
     __tablename__ = "images"
+
     image_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    message_id: Mapped[int] = mapped_column(Integer, ForeignKey("messages.message_id"), nullable=False)
+    message_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("messages.message_id"), nullable=False
+    )
     image_url: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
 

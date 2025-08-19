@@ -9,9 +9,10 @@ class UserCreate(BaseModel):
     """사용자 생성 요청 스키마."""
     username: str
     email: EmailStr
-    password: str 
+    password: str
+    # phone_number 필드 제거
 
-# 호환성을 위한 별칭
+# 호환성을 위한 별칭: UserRegister = UserCreate
 UserRegister = UserCreate
 
 class UserResponse(BaseModel):
@@ -21,16 +22,16 @@ class UserResponse(BaseModel):
     created_at: datetime.datetime
 
     class Config:
-        orm_mode = True  # SQLAlchemy 모델을 응답으로 사용할 수 있도록 설정
+        orm_mode = True  # Pydantic이 ORM 모델을 받아들일 수 있도록 설정
 
 # --- Token ---
 class Token(BaseModel):
-    """엑세스/리프레시 토큰 응답 스키마."""
+    """액세스/리프레시 토큰 응답 스키마."""
     access_token: str
     refresh_token: str
     token_type: str
 
-# 호환성을 위한 별칭
+# 호환성을 위한 별칭: TokenResponse = Token
 TokenResponse = Token
 
 class TokenData(BaseModel):
@@ -79,8 +80,7 @@ class MessageResponse(BaseModel):
 
 class MessageCreate(BaseModel):
     content: str = Field(..., min_length=1, max_length=8000)
-    # 멱등/중복 전송 방지용 (client_message_id가 동일하면 같은 요청으로 처리)
-    client_message_id: Optional[str] = None
+    client_message_id: Optional[str] = None  # 멱등/중복 전송 방지용
     stream: bool = False  # HTTP에서 스트리밍 대신 최종본만 받을지 선택
 
 class MessageOut(BaseModel):
