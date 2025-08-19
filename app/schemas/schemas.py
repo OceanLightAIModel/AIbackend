@@ -10,10 +10,19 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
-    # phone_number 필드 제거
+    chat_theme: bool  # 추가
+    dark_mode: bool   # 추가
+    created_at: datetime.datetime
+
+    class Config:
+        orm_mode = True
 
 # 호환성을 위한 별칭: UserRegister = UserCreate
 UserRegister = UserCreate
+
+class UserPreferenceUpdate(BaseModel):
+    chat_theme: Optional[bool] = None
+    dark_mode: Optional[bool] = None
 
 class UserResponse(BaseModel):
     user_id: int

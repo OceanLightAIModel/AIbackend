@@ -11,13 +11,14 @@ from route.auth import auth_router
 from route.token import router as token_router
 from route.thread import threads_router
 from route.message import router as message_router
-
+from route.user import user_router
 # 데이터베이스 테이블 생성
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 # 라우트 등록
+app.include_router(user_router)
 app.include_router(auth_router)
 app.include_router(token_router)
 app.include_router(threads_router)

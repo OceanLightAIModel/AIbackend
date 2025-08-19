@@ -24,6 +24,9 @@ class Users(Base):
     threads: Mapped[List["Thread"]] = relationship(
         back_populates="users", cascade="all, delete-orphan"
     )
+    chat_theme: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)  # false=강아지, true=고양이
+    dark_mode: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
 
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
