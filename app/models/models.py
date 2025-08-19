@@ -12,7 +12,6 @@ class Users(Base):
     username: Mapped[str] = mapped_column(String(100), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
-    phone_number: Mapped[str | None] = mapped_column(String(20), nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
