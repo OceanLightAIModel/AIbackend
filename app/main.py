@@ -2,11 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import get_db, engine, base
 from models import base
-from route.auth import auth_router
+from route import auth_router, threads_router, message_router 
+
 
 
 app = FastAPI()
 app.include_router(auth_router)
+app.include_router(threads_router)
+app.include_router(message_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# base.metadata.create_all(bind=engine) DB 처음 생성할 때만 사용, DB 테이블이 이미 존재하면 오류 발생
+#base.metadata.create_all(bind=engine) #DB 처음 생성할 때만 사용, DB 테이블이 이미 존재하면 오류 발생
 
 @app.get("/")
 def root():

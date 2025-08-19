@@ -64,4 +64,53 @@ class Login(BaseModel):
 
         # 형식이 잘못된 경우 예외 발생
         raise ValueError("identifier는 유효한 이메일 또는 전화번호여야 합니다.")
+    
 
+class ThreadCreate(BaseModel):
+    thread_title: str = Field(..., description="스레드 제목")
+
+class ThreadUpdate(BaseModel):
+    thread_title: str = Field(..., description="스레드 제목")
+
+class ThreadResponse(BaseModel):
+    thread_id: int = Field(..., description="스레드 ID")
+    thread_title: str = Field(..., description="스레드 제목")
+    created_at: datetime = Field(..., description="스레드 생성 시간")
+
+    class Config:
+        orm_mode = True
+
+class ThreadDetail(BaseModel):
+    thread_id: int
+    thread_title: str
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class MessageResponse(BaseModel):
+    message_id: int
+    thread_id: int
+    user_id: int
+    content: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True        
+
+class MessageCreate(BaseModel):
+    content: str = Field(..., min_length=1, max_length=8000)
+    # 멱등/중복 전송 방지용 (DB에 client_message_id 추가하면 유니크 보장 가능)
+    client_message_id: Optional[str] = None
+    stream: bool = False  # HTTP에서 스트리밍 대신 최종본만 받을지 선택(WS 권장)
+
+class MessageOut(BaseModel):
+    message_id: int
+    thread_id: int
+    sender_type: str
+    content: str
+    created_at: datetime
+
+    class Config:
+        orm_mode=True
