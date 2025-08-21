@@ -14,6 +14,7 @@ from .schemas import (
     ThreadDetail,
     MessageResponse,
     MessageCreate,
+    UserPreferenceUdate,
     MessageOut,
 )
 
@@ -21,6 +22,7 @@ __all__ = [
     "UserCreate",
     "UserRegister",
     "UserResponse",
+    "UserPreferenceUdate",
     "Token",
     "TokenResponse",
     "TokenData",
