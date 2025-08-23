@@ -14,7 +14,7 @@ from .schemas import (
     ThreadDetail,
     MessageResponse,
     MessageCreate,
-    UserPreferenceUdate,
+    UserPreferenceUpdate,
     MessageOut,
 )
 
