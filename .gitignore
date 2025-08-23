@@ -210,3 +210,7 @@ marimo/_lsp/
 __marimo__/
 >>>>>>> af399458c5bf4b2fa761b8a07657b84ddae95cf0
 __pycache__/
+
+# secrets
+secrets/
+*.pem
