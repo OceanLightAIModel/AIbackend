@@ -1,4 +1,4 @@
-version: '3.9'
+# docker-compose.yml  (version 키 제거: 최신 compose는 버전 표기 불필요)
 
 services:
   db:
@@ -18,13 +18,19 @@ services:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
       --skip-character-set-client-handshake
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${OCEAN_USER}", "-p${OCEAN_DB_USER_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   api:
     build: .
     container_name: ocean-api-server
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
     environment:
@@ -33,13 +39,16 @@ services:
       OCEAN_DB_HOST: ${OCEAN_DB_HOST}
       OCEAN_USER: ${OCEAN_USER}
       OCEAN_DB_USER_PASSWORD: ${OCEAN_DB_USER_PASSWORD}
+      # 위 값들은 .env 에도 동일 키로 들어있어도 괜찮음(override 규칙에 따름)
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
-    # 데이터베이스 초기화 시간을 확보하기 위해 10초 대기 후 API 서버 실행
+      # ✅ 개인키를 컨테이너 내부로 읽기전용 마운트 (레포 바깥 secrets 폴더 권장)
+      - ./secrets/cf_private_key.pem:/run/secrets/cf_private_key.pem:ro
+    working_dir: /app
     command: >
-      sh -c "sleep 10 && uvicorn main:app --host 0.0.0.0 --port 8000"
+      sh -c "uvicorn main:app --host 0.0.0.0 --port 8000"
 
 volumes:
   db-data:
