@@ -12,7 +12,6 @@ class UserCreate(BaseModel):
     password: str
     chat_theme: bool  # 추가
     dark_mode: bool   # 추가
-    created_at: datetime.datetime
 
     class Config:
         orm_mode = True
