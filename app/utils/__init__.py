@@ -9,7 +9,9 @@ from .token_utils import(
 )
 
 from .message_utils import(
-    stream_llm,
+    messages_to_prompt,
     assert_thread_ownership,
+    authenticate_websocket,
+    WSConnectionManager,
     own_thread
 )
