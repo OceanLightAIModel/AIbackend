@@ -1,5 +1,4 @@
-# docker-compose.yml  (version 키 제거: 최신 compose는 버전 표기 불필요)
-
+# docker-compose.yml
 services:
   db:
     image: mysql:8.0
