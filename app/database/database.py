@@ -7,7 +7,7 @@ from database.base import Base
 
 DB_USER = os.getenv("OCEAN_USER")
 DB_PASSWORD = os.getenv("OCEAN_DB_USER_PASSWORD")
-dDB_HOST = os.getenv("OCEAN_DB_HOST")
+DB_HOST = os.getenv("OCEAN_DB_HOST")
 DB_PORT = os.getenv("OCEAN_DB_PORT")
 DB_NAME = os.getenv("OCEAN_DB")
 
