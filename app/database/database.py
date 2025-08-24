@@ -5,16 +5,14 @@ from sqlalchemy.orm import sessionmaker
 import os, time
 from database.base import Base
 
-
 DB_USER = os.getenv("OCEAN_USER")
 DB_PASSWORD = os.getenv("OCEAN_DB_USER_PASSWORD")
-DB_HOST = os.getenv("OCEAN_DB_HOST")
+dDB_HOST = os.getenv("OCEAN_DB_HOST")
 DB_PORT = os.getenv("OCEAN_DB_PORT")
 DB_NAME = os.getenv("OCEAN_DB")
 
-SQLALCHEMY_DATABASE_URL = (
-    f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-)
+SQLALCHEMY_DATABASE_URL = f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
 engine = None
 for _ in range(5):
     try:
