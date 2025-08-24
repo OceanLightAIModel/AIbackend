@@ -19,10 +19,10 @@ class Users(Base):
     )
 
     refresh_tokens: Mapped[List["RefreshToken"]] = relationship(
-        back_populates="users", cascade="all, delete-orphan"
+        back_populates="users", cascade="all, delete"
     )
     threads: Mapped[List["Thread"]] = relationship(
-        back_populates="users", cascade="all, delete-orphan"
+        back_populates="users", cascade="all, delete"
     )
     chat_theme: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("0"))
     dark_mode: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("0"))
