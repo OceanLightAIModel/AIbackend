@@ -27,7 +27,6 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
         username=user.username,
         email=user.email,
         password_hash=hashed_password,
-        phone_number=user.phone_number,
         chat_theme=user.chat_theme if user.chat_theme is not None else False,
         dark_mode=user.dark_mode if user.dark_mode is not None else False,
     )
